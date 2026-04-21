@@ -1,0 +1,37 @@
+# --- Virtual Environments ---
+.venv/
+venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# --- Python Artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# --- Environment Variables & Secrets ---
+# (NEVER commit these to Git)
+.env
+.flaskenv
+*.secret
+
+# --- OS Specific Files ---
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+# Ignore local data volumes so you don't commit your database contents
+docker-data/
+pgdata/
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.swp
