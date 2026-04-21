@@ -6,6 +6,7 @@ from app.services.PlayerOrchestrationService import PlayerOrchestrationService
 from SportsAppModels.models.PlayerCreateRequest import PlayerCreateRequest
 from SportsAppModels.models.PlayerReadResponse import PlayerReadResponse
 from SportsAppModels.models.PlayerUpdateRequest import PlayerUpdateRequest
+from SportsAppModels.models.PlayerTradeRequest import PlayerTradeRequest
 
 player_endpoint = APIRouter(prefix="/players", tags=["Players"])
 
@@ -31,3 +32,11 @@ async def get_all_players(
     session: AsyncSession = Depends(get_session)
 ):
     return await service.get_all_players(session)
+
+@player_endpoint.post("/{athlete_id}/trade", response_model=PlayerReadResponse)
+async def trade_player(
+    athlete_id: int,
+    payload: PlayerTradeRequest,
+    session: AsyncSession = Depends(get_session)
+):
+    return await service.trade_player(session, athlete_id, payload)

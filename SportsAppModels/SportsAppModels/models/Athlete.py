@@ -10,7 +10,7 @@ class AthleteBase(SQLModel):
     display_name: str = Field(nullable=False, max_length=200)
 
     birth_date: Optional[date] = None
-    nationality: Optional[str] = Field(default=None, max_length=100)
+    country_id: Optional[int] = None
 
     height_inches: Optional[int] = None
     weight_lbs: Optional[int] = None
@@ -39,7 +39,7 @@ class AthleteUpdate(SQLModel):
     display_name: Optional[str] = None
 
     birth_date: Optional[date] = None
-    nationality: Optional[str] = None
+    country_id: Optional[int] = None
 
     height_inches: Optional[int] = None
     weight_lbs: Optional[int] = None
