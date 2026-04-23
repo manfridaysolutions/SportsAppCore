@@ -1,13 +1,12 @@
 import time
 from sqlalchemy.exc import OperationalError
-import os
-
-from sqlmodel import SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.core.settings import settings
 
 def create_engine_with_retry():
-    url = os.getenv("DATABASE_URL")
+    url = settings.database_url
     retries = 10
     delay = 3
 

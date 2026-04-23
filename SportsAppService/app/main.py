@@ -1,6 +1,16 @@
 from fastapi import FastAPI
+import app
 from app.api.v1.api import api_router
+from app.core.logging_config import configure_logging
 
+configure_logging()
+
+# async def health() -> FastAPI:
+#     app = FastAPI()
+
+#     @app.get("/health")
+
+#     return {"status": "ok"}
 
 def create_app() -> FastAPI:
     app = FastAPI(
