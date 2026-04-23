@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: sportsapp_db
+    restart: always
+    environment:
+      POSTGRES_USER: testservice1
+      POSTGRES_PASSWORD: sportsapp
+      POSTGRES_DB: testdb1
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testservice1 -d testdb1 -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: ./SportsAppService/Dockerfile
+    container_name: sportsapp_fastapi
+    working_dir: /code/SportsAppService
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./SportsAppService:/code/SportsAppService
+      - ./SportsAppModels:/code/SportsAppModels
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://testservice1:sportsapp@db:5432/testdb1
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
