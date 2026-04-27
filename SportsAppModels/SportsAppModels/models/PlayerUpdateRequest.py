@@ -8,4 +8,4 @@ from SportsAppModels.models.RosterPosition import RosterPositionCreate, RosterPo
 class PlayerUpdateRequest(SQLModel):
     athlete: Optional[AthleteUpdate] = None
     roster: Optional[RosterUpdate] = None
-    positions: Optional[List[RosterPositionCreate]] = None
+    roster_positions: Optional[List[RosterPositionCreate]] = None

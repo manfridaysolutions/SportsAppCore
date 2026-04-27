@@ -35,7 +35,7 @@ class PlayerOrchestrationService:
 
             # 3. Create Roster Positions
             created_positions = []
-            for pos in payload.positions:
+            for pos in payload.roster_positions:
                 pos_data = pos.dict()
                 pos_data["roster_id"] = roster.roster_id
 
@@ -45,7 +45,7 @@ class PlayerOrchestrationService:
         return PlayerReadResponse(
             athlete=athlete,
             roster=roster,
-            positions=created_positions
+            roster_positions=created_positions
         )
     
     async def get_all_players(
@@ -64,9 +64,9 @@ class PlayerOrchestrationService:
             roster = await self.rosters.get_by_athlete(session, athlete.athlete_id)
 
             # 3. Get positions for roster
-            positions = []
+            roster_positions = []
             if roster:
-                positions = await self.roster_positions.get_positions_for_roster(
+                roster_positions = await self.roster_positions.get_positions_for_roster(
                     session,
                     roster.roster_id
                 )
@@ -75,7 +75,7 @@ class PlayerOrchestrationService:
                 PlayerReadResponse(
                     athlete=athlete,
                     roster=roster,
-                    positions=positions
+                    roster_positions=roster_positions
                 )
             )
 
@@ -117,14 +117,14 @@ class PlayerOrchestrationService:
                 )
 
             # 5. Replace roster positions (if provided)
-            positions = await self.roster_positions.get_positions_for_roster(
+            roster_positions = await self.roster_positions.get_positions_for_roster(
                 session,
                 roster.roster_id
             )
 
             if payload.positions is not None:
                 # Delete existing positions
-                for pos in positions:
+                for pos in roster_positions:
                     await self.roster_positions.delete(
                         session,
                         pos.roster_id,
@@ -139,12 +139,12 @@ class PlayerOrchestrationService:
                     created = await self.roster_positions.create(session, pos_data)
                     new_positions.append(created)
 
-                positions = new_positions
+                roster_positions = new_positions
 
         return PlayerReadResponse(
             athlete=athlete,
             roster=roster,
-            positions=positions
+            roster_positions=roster_positions
         )
     
     async def trade_player(
@@ -177,18 +177,18 @@ class PlayerOrchestrationService:
             new_roster = await self.rosters.create(session, new_roster_data)
 
             # 5. Create new roster positions
-            new_positions = []
+            new_roster_positions = []
             for pos in payload.new_positions:
                 pos_data = pos.dict()
                 pos_data["roster_id"] = new_roster.roster_id
 
                 created = await self.roster_positions.create(session, pos_data)
-                new_positions.append(created)
+                new_roster_positions.append(created)
 
         return PlayerReadResponse(
             athlete=athlete,
             roster=new_roster,
-            positions=new_positions
+            roster_positions=new_roster_positions
         )
 
     

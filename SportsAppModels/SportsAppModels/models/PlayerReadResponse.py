@@ -8,4 +8,4 @@ from SportsAppModels.models.RosterPosition import RosterPositionRead
 class PlayerReadResponse(SQLModel):
     athlete: AthleteRead
     roster: Optional[RosterRead] = None
-    positions: List[RosterPositionRead] = []
+    roster_positions: List[RosterPositionRead] = []

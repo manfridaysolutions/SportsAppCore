@@ -10,4 +10,4 @@ from SportsAppModels.models.RosterPosition import RosterPositionCreate
 class PlayerCreateRequest(SQLModel):
     athlete: AthleteCreate
     roster: RosterCreate
-    positions: List[RosterPositionCreate] = []
+    roster_positions: List[RosterPositionCreate] = []

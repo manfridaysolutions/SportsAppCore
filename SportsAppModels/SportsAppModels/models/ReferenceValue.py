@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Dict, Any
+from typing import TYPE_CHECKING, Optional, Dict, Any, List
 from sqlmodel import Field, SQLModel, Relationship, Column, JSON
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ class ReferenceValue(ReferenceValueBase, table=True):
     )
     # --- Relationships ---    
     reference_category: Optional["ReferenceCategory"] = Relationship(back_populates="reference_values")
-    sport_category: Optional["Sport"] = Relationship(back_populates="sport_category")  
+    sports: Optional[List["Sport"]]= Relationship(back_populates="sport_category")  
 
 class ReferenceValueCreate(ReferenceValueBase):
     pass
@@ -38,7 +38,7 @@ class ReferenceValueRead(ReferenceValueBase):
     reference_value_id: int
 
     reference_category: Optional["ReferenceCategory"] = None  # Include category details in read model
-    sport_category: Optional["Sport"] = None  # Include sport details in read model
+    sports: Optional[List["Sport"]] = None  # Include sport details in read model
 
 class ReferenceValueUpdate(ReferenceValueBase):
     pass

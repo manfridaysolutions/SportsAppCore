@@ -6,4 +6,4 @@ from SportsAppModels.models.RosterPosition import RosterPositionCreate
 
 class PlayerTradeRequest(SQLModel):
     new_roster: RosterCreate
-    new_positions: List[RosterPositionCreate] = []
+    new_roster_positions: List[RosterPositionCreate] = []
