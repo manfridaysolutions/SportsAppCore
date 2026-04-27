@@ -1,6 +1,9 @@
 from typing import Optional
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from SportsAppModels.models.RosterPosition import RosterPosition
 
 from SportsAppModels.models.Roster import (
     Roster,
@@ -15,6 +18,8 @@ class RosterRepository(BaseRepository[
     RosterCreate, 
     RosterUpdate
 ]):
+    default_relationships = ["athlete","team","roster_positions"]  # Automatically load related categories
+    
     def __init__(self):
         super().__init__(Roster)
 
@@ -26,7 +31,11 @@ class RosterRepository(BaseRepository[
         stmt = (
             select(Roster)
             .where(Roster.athlete_id == athlete_id)
+            .options(
+                selectinload(Roster.team),
+                selectinload(Roster.roster_positions)
+                    .selectinload(RosterPosition.position)
+            )
         )
-
         result = await session.exec(stmt)
         return result.first()

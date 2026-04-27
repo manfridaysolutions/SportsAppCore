@@ -1,5 +1,5 @@
 from typing import Generic, TypeVar, Type, Optional, List
-from sqlmodel import SQLModel, select
+from sqlmodel import SQLModel, select, inspect
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -31,8 +31,34 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return result.all()
 
-    async def get_by_id(self, session: AsyncSession, id: int) -> Optional[ModelType]:
-        return await session.get(self.model, id)
+    async def get_by_id(
+        self,
+        session: AsyncSession,
+        id: int
+    ) -> Optional[ModelType]:
+        # Resolve primary key column dynamically
+        mapper = inspect(self.model)
+        pk_cols = list(mapper.primary_key)
+
+        if len(pk_cols) != 1:
+            # For composite keys, this generic method is not suitable
+            # and should be overridden in the concrete repository.
+            raise ValueError(
+                f"{self.model.__name__} has composite or no primary key; "
+                "override get_by_id in the concrete repository."
+            )
+
+        pk_col = pk_cols[0]
+
+        stmt = select(self.model).where(pk_col == id)
+
+        if self.default_relationships:
+            for rel in self.default_relationships:
+                prop = rel if not isinstance(rel, str) else getattr(self.model, rel)
+                stmt = stmt.options(selectinload(prop))
+
+        result = await session.exec(stmt)
+        return result.one_or_none()
 
     async def create(self, session: AsyncSession, obj_in: CreateSchemaType) -> ModelType:
         obj = self.model.from_orm(obj_in)

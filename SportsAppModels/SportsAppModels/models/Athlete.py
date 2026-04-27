@@ -1,8 +1,10 @@
 from datetime import date
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
 
+if TYPE_CHECKING:
+    from .Roster import Roster
 
 class AthleteBase(SQLModel):
     first_name: str = Field(nullable=False, max_length=100)
@@ -25,6 +27,9 @@ class Athlete(AthleteBase, table=True):
 
     athlete_id: Optional[int] = Field(default=None, primary_key=True)
 
+    # --- Relationships ---
+    rosters: Optional[list["Roster"]] = Relationship(back_populates="athlete")  # Back reference to Roster
+
 
 class AthleteCreate(AthleteBase):
     pass
@@ -32,6 +37,8 @@ class AthleteCreate(AthleteBase):
 
 class AthleteRead(AthleteBase):
     athlete_id: int
+
+    rosters: Optional[list["Roster"]] = None  # Include roster details in read model
 
 class AthleteUpdate(SQLModel):
     first_name: Optional[str] = None
@@ -46,3 +53,6 @@ class AthleteUpdate(SQLModel):
 
     is_active: Optional[bool] = None
     source_reference_id: Optional[str] = None
+
+from .Roster import Roster
+Athlete.model_rebuild()

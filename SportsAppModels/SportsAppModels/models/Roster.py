@@ -1,6 +1,10 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import TYPE_CHECKING, Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 
+if TYPE_CHECKING:
+    from .Athlete import Athlete
+    from .Team import Team
+    from .RosterPosition import RosterPosition
 
 class RosterBase(SQLModel):
     athlete_id: int = Field(
@@ -28,6 +32,10 @@ class Roster(RosterBase, table=True):
     roster_id: Optional[int] = Field(default=None, primary_key=True)
     # sys_period intentionally omitted (managed by PostgreSQL triggers)
 
+    # -- Relationships --
+    athlete: Optional["Athlete"] = Relationship(back_populates="rosters")
+    team: Optional["Team"] = Relationship(back_populates="rosters")
+    roster_positions: Optional[List["RosterPosition"]] = Relationship(back_populates="roster")  # Back reference to RosterPosition
 
 class RosterCreate(RosterBase):
     pass
@@ -36,6 +44,9 @@ class RosterCreate(RosterBase):
 class RosterRead(RosterBase):
     roster_id: int
 
+    athlete: Optional["Athlete"] = None  # Include athlete details in read model
+    team: Optional["Team"] = None  # Include team details in read model
+    # roster_positions: Optional[List["RosterPosition"]] = None  # Include roster position details in read model
 
 class RosterUpdate(SQLModel):
     athlete_id: Optional[int] = None
@@ -45,3 +56,8 @@ class RosterUpdate(SQLModel):
     is_primary_sport: Optional[bool] = None
     status: Optional[str] = None
     jersey_number: Optional[str] = None
+
+from .Athlete import Athlete
+from .RosterPosition import RosterPosition
+from .Team import Team
+Roster.model_rebuild()

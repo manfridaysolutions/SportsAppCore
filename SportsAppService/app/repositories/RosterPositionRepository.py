@@ -2,21 +2,29 @@ from typing import Optional, List
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from sqlalchemy.orm import selectinload
+
 from SportsAppModels.models.RosterPosition import (
     RosterPosition,
     RosterPositionCreate,
     RosterPositionUpdate
 )
 
-
-class RosterPositionRepository:
+class RosterPositionRepository :
 
     async def get_positions_for_roster(
         self,
         session: AsyncSession,
         roster_id: int
     ) -> List[RosterPosition]:
-        stmt = select(RosterPosition).where(RosterPosition.roster_id == roster_id)
+        stmt = (
+            select(RosterPosition)
+            .where(RosterPosition.roster_id == roster_id)
+            .options(
+                selectinload(RosterPosition.position),
+                selectinload(RosterPosition.roster)
+            )
+        )
         result = await session.exec(stmt)
         return result.all()
 
@@ -26,10 +34,19 @@ class RosterPositionRepository:
         roster_id: int,
         position_id: int
     ) -> Optional[RosterPosition]:
-        return await session.get(
-            RosterPosition,
-            (roster_id, position_id)
+        stmt = (
+            select(RosterPosition)
+            .where(
+                RosterPosition.roster_id == roster_id,
+                RosterPosition.position_id == position_id
+            )
+            .options(
+                selectinload(RosterPosition.position),
+                selectinload(RosterPosition.roster)
+            )
         )
+        result = await session.exec(stmt)
+        return result.one_or_none()
 
     async def create(
         self,
