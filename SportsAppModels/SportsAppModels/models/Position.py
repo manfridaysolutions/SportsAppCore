@@ -28,8 +28,5 @@ class PositionRead(PositionBase):
     position_id: int
 
 
-class PositionUpdate(SQLModel):
-    sport_id: Optional[int] = None
-    position_name: Optional[str] = None
-    position_abbreviation: Optional[str] = None
-    description: Optional[str] = None
+class PositionUpdate(PositionBase):
+    pass

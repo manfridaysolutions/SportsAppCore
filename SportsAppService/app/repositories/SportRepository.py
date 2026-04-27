@@ -11,5 +11,7 @@ class SportRepository(BaseRepository[
     SportCreate, 
     SportUpdate
 ]):
+    default_relationships = ["sport_category"]  # Automatically load related categories
+
     def __init__(self):
         super().__init__(Sport)

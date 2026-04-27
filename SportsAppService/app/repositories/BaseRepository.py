@@ -1,6 +1,7 @@
 from typing import Generic, TypeVar, Type, Optional, List
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import selectinload
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
@@ -8,12 +9,26 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=SQLModel)
 
 
 class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+    # Default to an empty list so it doesn't break other models
+    default_relationships: list = []
 
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
     async def get_all(self, session: AsyncSession) -> List[ModelType]:
-        result = await session.exec(select(self.model))
+        statement = select(self.model)
+
+        if self.default_relationships:
+            for rel in self.default_relationships:
+                # If it's already a class attribute (e.g., Sport.sport_category), use it
+                # If it's a string, look it up on the class
+                prop = rel if not isinstance(rel, str) else getattr(self.model, rel)
+                
+                # Ensure we are passing the attribute directly to selectinload
+                statement = statement.options(selectinload(prop))
+
+        result = await session.exec(statement)
+
         return result.all()
 
     async def get_by_id(self, session: AsyncSession, id: int) -> Optional[ModelType]:

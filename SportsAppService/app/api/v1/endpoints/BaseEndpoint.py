@@ -33,7 +33,12 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
 
         @self.router.get("/", response_model=List[self.model_read])
         async def get_all(session: AsyncSession = Depends(get_session)):
-            return await self.service.get_all(session)
+            results = await self.service.get_all(session)
+
+            # if results:
+            #     print (f"DEBUG: First item dict: {results[0].__dict__}")
+
+            return results
 
         @self.router.get("/{id}", response_model=self.model_read)
         async def get_by_id(id: int, session: AsyncSession = Depends(get_session)):

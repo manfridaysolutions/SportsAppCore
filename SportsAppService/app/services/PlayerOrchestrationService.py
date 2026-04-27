@@ -10,7 +10,6 @@ from app.repositories.AthleteRepository import AthleteRepository
 from app.repositories.RosterRepository import RosterRepository
 from app.repositories.RosterPositionRepository import RosterPositionRepository
 
-
 class PlayerOrchestrationService:
 
     def __init__(self):
