@@ -17,6 +17,7 @@ team_endpoint = BaseEndpoint[
     TeamRead
 ](
     service=team_service,
+    model_create=TeamCreate,
     model_read=TeamRead,
     model_update=TeamUpdate,
     prefix="/team",

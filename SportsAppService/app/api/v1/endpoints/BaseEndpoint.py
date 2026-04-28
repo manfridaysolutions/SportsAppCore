@@ -19,6 +19,7 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
         self,
         *,
         service: BaseService[ModelType, CreateSchemaType, UpdateSchemaType],
+        model_create: Type[CreateSchemaType],
         model_read: Type[ReadSchemaType],
         model_update: Type[UpdateSchemaType],
         prefix: str,
@@ -26,14 +27,13 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
     ):
         self.router = APIRouter(prefix=prefix, tags=tags)
         self.service = service
+        self.model_create = model_create
         self.model_read = model_read
         self.model_update = model_update
 
         self._add_routes()
 
     def _add_routes(self):
-
-        UpdateModel = self.model_update
 
         @self.router.get("/", response_model=List[self.model_read])
         async def get_all(
@@ -57,10 +57,16 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
 
         @self.router.post("/", response_model=self.model_read, status_code=status.HTTP_201_CREATED)
         async def create(
-            obj_in: CreateSchemaType,
+            obj_in_raw: Annotated[Any, Body(...)],
+            # obj_in: CreateSchemaType,
             session: AsyncSession = Depends(get_session)
-        ):
-            return await self.service.create(session, obj_in)
+        ):        
+            obj_in = self.model_create(**obj_in_raw)
+            created = await self.service.create(session, obj_in)
+
+            if not created:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            return created
 
         @self.router.put("/{id}", response_model=self.model_read)
         async def update(
@@ -68,9 +74,7 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
             obj_in_raw: Annotated[Any, Body(...)],
             session: AsyncSession = Depends(get_session)
         ):
-            UpdateModel = self.model_update
-
-            obj_in = UpdateModel(**obj_in_raw)
+            obj_in = self.model_update(**obj_in_raw)
 
             updated = await self.service.update(session, id, obj_in)
             if not updated:

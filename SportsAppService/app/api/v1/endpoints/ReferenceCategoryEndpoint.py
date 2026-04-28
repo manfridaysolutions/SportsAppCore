@@ -22,6 +22,7 @@ reference_category_endpoint = BaseEndpoint[
     ReferenceCategoryRead
 ](
     service=reference_category_service,
+    model_create=ReferenceCategoryCreate,
     model_read=ReferenceCategoryRead,
     model_update=ReferenceCategoryUpdate,
     prefix="/reference-categories",

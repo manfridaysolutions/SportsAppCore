@@ -17,6 +17,7 @@ reference_value_endpoint = BaseEndpoint[
     ReferenceValueRead
 ](
     service=reference_value_service,
+    model_create=ReferenceValueCreate,
     model_read=ReferenceValueRead,
     model_update=ReferenceValueUpdate,
     prefix="/reference-values",

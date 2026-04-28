@@ -1,3 +1,6 @@
+from pyexpat import model
+from turtle import mode
+
 from SportsAppModels.models.Sport import (
     Sport,
     SportCreate,
@@ -16,6 +19,7 @@ sport_endpoint = BaseEndpoint[
     SportRead
 ](
     service=sport_service,
+    model_create=SportCreate,
     model_read=SportRead,
     model_update=SportUpdate,
     prefix="/sports",

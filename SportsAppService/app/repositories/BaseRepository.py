@@ -3,6 +3,8 @@ from sqlmodel import SQLModel, select, inspect
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.db import session
+
 ModelType = TypeVar("ModelType", bound=SQLModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=SQLModel)
@@ -61,10 +63,26 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.one_or_none()
 
     async def create(self, session: AsyncSession, obj_in: CreateSchemaType) -> ModelType:
-        obj = self.model.from_orm(obj_in)
+        # 1. Create the initial object from the schema
+        obj = self.model.model_validate(obj_in) # model_validate is preferred in Pydantic v2
         session.add(obj)
+    
+        # 2. Commit to generate the ID
         await session.commit()
-        await session.refresh(obj)
+
+        # 3. Resolve the ID to fetch the full record
+        # We use inspect to find the PK column name dynamically
+        mapper = inspect(self.model)
+        pk_column_name = mapper.primary_key[0].name
+        obj_id = getattr(obj, pk_column_name)
+
+        # 4. Reuse get_by_id to fetch with all selectinload options
+        # This avoids the "MissingGreenlet" error by pre-loading relationships
+        full_obj = await self.get_by_id(session, obj_id)
+    
+        if full_obj is None:
+            raise ValueError(f"Failed to retrieve {self.model.__name__} after creation.")
+    
         return obj
 
     async def update(
@@ -73,11 +91,6 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: UpdateSchemaType
     ) -> ModelType:
-        print(f"--- DEBUG START ---")
-        print(f"RAW obj_in: {obj_in}")
-        print(f"obj_in Dict: {obj_in.model_dump()}")
-        print(f"--- DEBUG END ---")
-
         # Use model_dump for better compatibility with Pydantic v2
         obj_data = obj_in.model_dump(exclude_unset=True)
         print(f"DEBUG: Fields being updated: {list(obj_data.keys())}")
@@ -87,8 +100,21 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         session.add(db_obj)
         await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+
+        # 3. Resolve the ID to fetch the full record
+        # We use inspect to find the PK column name dynamically
+        mapper = inspect(self.model)
+        pk_column_name = mapper.primary_key[0].name
+        obj_id = getattr(db_obj, pk_column_name)
+
+        # 4. Reuse get_by_id to fetch with all selectinload options
+        # This avoids the "MissingGreenlet" error by pre-loading relationships
+        full_obj = await self.get_by_id(session, obj_id)
+    
+        if full_obj is None:
+            raise ValueError(f"Failed to retrieve {self.model.__name__} after creation.")
+    
+        return full_obj
 
     async def delete(self, session: AsyncSession, db_obj: ModelType) -> None:
         await session.delete(db_obj)

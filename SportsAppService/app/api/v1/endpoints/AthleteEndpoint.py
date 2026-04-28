@@ -1,3 +1,4 @@
+from ast import mod
 from turtle import mode
 
 from SportsAppModels.models.Athlete import (
@@ -18,6 +19,7 @@ athlete_endpoint = BaseEndpoint[
     AthleteRead
 ](
     service=athlete_service,
+    model_create=AthleteCreate,
     model_read=AthleteRead,
     model_update=AthleteUpdate,
     prefix="/athlete",

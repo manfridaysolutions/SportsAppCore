@@ -17,6 +17,7 @@ league_endpoint = BaseEndpoint[
     LeagueRead
 ](
     service=league_service,
+    model_create=LeagueCreate,
     model_read=LeagueRead,
     model_update=LeagueUpdate,
     prefix="/league",
