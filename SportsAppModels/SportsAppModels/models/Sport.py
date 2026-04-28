@@ -20,7 +20,7 @@ class Sport(SportBase, table=True):
     sport_id: Optional[int] = Field(default=None, primary_key=True)
     
     # Keep the relationship here, not in the Base class, to avoid circular imports
-    sport_category: Optional["ReferenceValue"] = Relationship(back_populates="sports")  
+    sport_category: Optional["ReferenceValue"] = Relationship(back_populates="sports") # Back reference to ReferenceValue for sport_category   
 
 class SportCreate(SportBase):
     pass

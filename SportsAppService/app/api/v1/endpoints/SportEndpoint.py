@@ -17,6 +17,7 @@ sport_endpoint = BaseEndpoint[
 ](
     service=sport_service,
     model_read=SportRead,
+    model_update=SportUpdate,
     prefix="/sports",
     tags=["Sports"]
 ).router

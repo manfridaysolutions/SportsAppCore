@@ -18,6 +18,7 @@ league_endpoint = BaseEndpoint[
 ](
     service=league_service,
     model_read=LeagueRead,
+    model_update=LeagueUpdate,
     prefix="/league",
     tags=["League"]
 ).router

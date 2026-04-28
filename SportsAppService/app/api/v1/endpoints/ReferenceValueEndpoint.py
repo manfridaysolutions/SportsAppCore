@@ -18,6 +18,7 @@ reference_value_endpoint = BaseEndpoint[
 ](
     service=reference_value_service,
     model_read=ReferenceValueRead,
+    model_update=ReferenceValueUpdate,
     prefix="/reference-values",
     tags=["Reference Values"]
 ).router

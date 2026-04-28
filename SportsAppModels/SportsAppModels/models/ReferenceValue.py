@@ -4,6 +4,7 @@ from sqlmodel import Field, SQLModel, Relationship, Column, JSON
 if TYPE_CHECKING:
     from .ReferenceCategory import ReferenceCategory
     from .Sport import Sport
+    from .League import League
 
 class ReferenceValueBase(SQLModel):
     reference_category_id: int = Field(
@@ -29,7 +30,8 @@ class ReferenceValue(ReferenceValueBase, table=True):
     )
     # --- Relationships ---    
     reference_category: Optional["ReferenceCategory"] = Relationship(back_populates="reference_values")
-    sports: Optional[List["Sport"]]= Relationship(back_populates="sport_category")  
+    sports: Optional[List["Sport"]]= Relationship(back_populates="sport_category")
+    countries: Optional[List["League"]] = Relationship(back_populates="country") # Back reference to League for country
 
 class ReferenceValueCreate(ReferenceValueBase):
     pass
@@ -38,11 +40,13 @@ class ReferenceValueRead(ReferenceValueBase):
     reference_value_id: int
 
     reference_category: Optional["ReferenceCategory"] = None  # Include category details in read model
-    sports: Optional[List["Sport"]] = None  # Include sport details in read model
+    
+    # sports: Optional[List["Sport"]] = None  # Include sport details in read model
 
 class ReferenceValueUpdate(ReferenceValueBase):
     pass
 
 from .ReferenceCategory import ReferenceCategory
 from .Sport import Sport
+from .League import League
 ReferenceValue.model_rebuild()

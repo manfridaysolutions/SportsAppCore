@@ -16,7 +16,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, repository: BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.repository = repository
 
-    async def get_all(self, session: AsyncSession) -> List[ModelType]:
+    async def get_all(self, session: AsyncSession, **kwargs) -> List[ModelType]:
         return await self.repository.get_all(session)
 
     async def get_by_id(self, session: AsyncSession, id: int) -> Optional[ModelType]:

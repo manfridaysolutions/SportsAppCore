@@ -18,6 +18,7 @@ team_endpoint = BaseEndpoint[
 ](
     service=team_service,
     model_read=TeamRead,
+    model_update=TeamUpdate,
     prefix="/team",
     tags=["Team"]
 ).router

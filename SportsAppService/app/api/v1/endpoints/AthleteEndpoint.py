@@ -1,3 +1,5 @@
+from turtle import mode
+
 from SportsAppModels.models.Athlete import (
     Athlete,
     AthleteCreate,
@@ -17,6 +19,7 @@ athlete_endpoint = BaseEndpoint[
 ](
     service=athlete_service,
     model_read=AthleteRead,
+    model_update=AthleteUpdate,
     prefix="/athlete",
     tags=["Athlete"]
 ).router

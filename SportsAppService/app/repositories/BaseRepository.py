@@ -73,7 +73,15 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: UpdateSchemaType
     ) -> ModelType:
-        obj_data = obj_in.dict(exclude_unset=True)
+        print(f"--- DEBUG START ---")
+        print(f"RAW obj_in: {obj_in}")
+        print(f"obj_in Dict: {obj_in.model_dump()}")
+        print(f"--- DEBUG END ---")
+
+        # Use model_dump for better compatibility with Pydantic v2
+        obj_data = obj_in.model_dump(exclude_unset=True)
+        print(f"DEBUG: Fields being updated: {list(obj_data.keys())}")
+        
         for field, value in obj_data.items():
             setattr(db_obj, field, value)
 

@@ -11,5 +11,7 @@ class LeagueRepository(BaseRepository[
     LeagueCreate, 
     LeagueUpdate
 ]):
+    default_relationships = ["country"]  # Automatically load related categories
+
     def __init__(self):
         super().__init__(League)

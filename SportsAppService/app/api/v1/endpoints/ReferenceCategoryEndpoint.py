@@ -18,6 +18,7 @@ reference_category_endpoint = BaseEndpoint[
 ](
     service=reference_category_service,
     model_read=ReferenceCategoryRead,
+    model_update=ReferenceCategoryUpdate,
     prefix="/reference-categories",
     tags=["Reference Categories"]
 ).router

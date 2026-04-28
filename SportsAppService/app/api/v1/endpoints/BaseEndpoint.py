@@ -1,5 +1,5 @@
-from typing import Generic, TypeVar, Type, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Any, Dict, Generic, TypeVar, Type, List
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Body
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.db.session import get_session
@@ -20,24 +20,30 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
         *,
         service: BaseService[ModelType, CreateSchemaType, UpdateSchemaType],
         model_read: Type[ReadSchemaType],
+        model_update: Type[UpdateSchemaType],
         prefix: str,
         tags: list[str]
     ):
         self.router = APIRouter(prefix=prefix, tags=tags)
         self.service = service
         self.model_read = model_read
+        self.model_update = model_update
 
         self._add_routes()
 
     def _add_routes(self):
 
         @self.router.get("/", response_model=List[self.model_read])
-        async def get_all(session: AsyncSession = Depends(get_session)):
-            results = await self.service.get_all(session)
-
-            # if results:
-            #     print (f"DEBUG: First item dict: {results[0].__dict__}")
-
+        async def get_all(
+            request: Request, # Access the raw request to grab query params
+            session: AsyncSession = Depends(get_session)
+        ):
+            # Capture all query parameters from the URL (e.g., sport_id=6)
+            params = dict(request.query_params)
+            
+            # Pass the params to the service. Your LeagueService will 
+            # now receive {'sport_id': '6'} in its get_all method.
+            results = await self.service.get_all(session, **params)
             return results
 
         @self.router.get("/{id}", response_model=self.model_read)
@@ -57,9 +63,20 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
         @self.router.put("/{id}", response_model=self.model_read)
         async def update(
             id: int,
-            obj_in: UpdateSchemaType,
+            obj_in_raw: Dict[str, Any] = Body(...),
+            # obj_in: UpdateSchemaType,
             session: AsyncSession = Depends(get_session)
         ):
+            try:
+                obj_in = self.model_update(**obj_in_raw)
+            except Exception as e:
+                raise HTTPException(status_code=422, detail=f"Validation failed: {str(e)}")
+
+            print(f"--- DEBUG START ---")
+            print(f"Raw Dict Received: {obj_in_raw}")
+            print(f"Validated Model: {obj_in}")
+            print(f"--- DEBUG END ---")
+            
             updated = await self.service.update(session, id, obj_in)
             if not updated:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
