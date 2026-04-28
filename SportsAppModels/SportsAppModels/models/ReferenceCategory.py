@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
-    from .ReferenceValue import ReferenceValue
+    from .ReferenceValue import ReferenceValue, ReferenceValueRead
 
 class ReferenceCategoryBase(SQLModel):
     name: str = Field(index=True, unique=True, max_length=100)
@@ -30,10 +30,11 @@ class ReferenceCategoryCreate(ReferenceCategoryBase):
 class ReferenceCategoryRead(ReferenceCategoryBase):
     reference_category_id: int
 
-    reference_values: Optional[List["ReferenceValue"]] = None  # Include related values in read model
+    reference_values: Optional[List["ReferenceValueRead"]] = None  # Include related values in read model
 
 class ReferenceCategoryUpdate(ReferenceCategoryBase):
     pass
 
-from .ReferenceValue import ReferenceValue
+from .ReferenceValue import ReferenceValue, ReferenceValueRead
 ReferenceCategory.model_rebuild()
+ReferenceCategoryRead.model_rebuild()

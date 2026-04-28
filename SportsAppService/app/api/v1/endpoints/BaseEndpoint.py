@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, TypeVar, Type, List
+from typing import Any, Dict, Generic, TypeVar, Type, List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Body
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -33,6 +33,8 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
 
     def _add_routes(self):
 
+        UpdateModel = self.model_update
+
         @self.router.get("/", response_model=List[self.model_read])
         async def get_all(
             request: Request, # Access the raw request to grab query params
@@ -63,20 +65,13 @@ class BaseEndpoint(Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReadSc
         @self.router.put("/{id}", response_model=self.model_read)
         async def update(
             id: int,
-            obj_in_raw: Dict[str, Any] = Body(...),
-            # obj_in: UpdateSchemaType,
+            obj_in_raw: Annotated[Any, Body(...)],
             session: AsyncSession = Depends(get_session)
         ):
-            try:
-                obj_in = self.model_update(**obj_in_raw)
-            except Exception as e:
-                raise HTTPException(status_code=422, detail=f"Validation failed: {str(e)}")
+            UpdateModel = self.model_update
 
-            print(f"--- DEBUG START ---")
-            print(f"Raw Dict Received: {obj_in_raw}")
-            print(f"Validated Model: {obj_in}")
-            print(f"--- DEBUG END ---")
-            
+            obj_in = UpdateModel(**obj_in_raw)
+
             updated = await self.service.update(session, id, obj_in)
             if not updated:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
