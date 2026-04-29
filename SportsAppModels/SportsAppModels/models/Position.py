@@ -31,7 +31,7 @@ class PositionCreate(PositionBase):
 class PositionRead(PositionBase):
     position_id: int
 
-    roster_positions: Optional[list["RosterPosition"]] = None  # Include roster position details in read model
+    # roster_positions: Optional[list["RosterPosition"]] = None  # Include roster position details in read model
 
 class PositionUpdate(PositionBase):
     pass
