@@ -39,9 +39,4 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return await self.repository.update(session, db_obj, obj_in)
 
     async def delete(self, session: AsyncSession, id: int) -> bool:
-        db_obj = await self.repository.get_by_id(session, id)
-        if not db_obj:
-            return False
-
-        await self.repository.delete(session, db_obj)
-        return True
+        return await self.repository.delete(session, id)

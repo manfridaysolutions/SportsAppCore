@@ -116,6 +116,12 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     
         return full_obj
 
-    async def delete(self, session: AsyncSession, db_obj: ModelType) -> None:
-        await session.delete(db_obj)
+    async def delete(self, session: AsyncSession, id: int) -> bool:
+        obj = await self.get_by_id(session, id)
+
+        if not obj:
+            return False
+
+        await session.delete(obj)
         await session.commit()
+        return True
