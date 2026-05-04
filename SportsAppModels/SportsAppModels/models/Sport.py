@@ -7,10 +7,10 @@ if TYPE_CHECKING:
     from .ReferenceValue import ReferenceValue
 
 class SportBase(SQLModel):
-    sport_name: str = Field(nullable=False, max_length=100, index=True)
-    category_id: int = Field(nullable=False, foreign_key="sports.reference_values.reference_value_id")
-    is_team_sport: bool = Field(default=False)
-    governing_body: Optional[str] = Field(default=None, max_length=100)
+    sport_name: Optional[str] = Field(default=None,nullable=False, max_length=100, index=True)
+    category_id: Optional[int] = Field(default=None,nullable=False, foreign_key="sports.reference_values.reference_value_id")
+    is_team_sport: Optional[bool] = Field(default=False)
+    governing_body: Optional[str] = Field(default=None,max_length=100)
     description: Optional[str] = None
 
 class Sport(SportBase, table=True):
@@ -20,11 +20,11 @@ class Sport(SportBase, table=True):
     sport_id: Optional[int] = Field(default=None, primary_key=True)
     
     # Keep the relationship here, not in the Base class, to avoid circular imports
-    sport_category: Optional["ReferenceValue"] = Relationship(back_populates="sports") # Back reference to ReferenceValue for sport_category   
+    sport_category: Optional["ReferenceValue"] = Relationship() # Back reference to ReferenceValue for sport_category   
 
 class SportCreate(SportBase):
-    pass
-
+    sport_name: str
+    category_id: int
 
 class SportRead(SportBase):
     sport_id: int

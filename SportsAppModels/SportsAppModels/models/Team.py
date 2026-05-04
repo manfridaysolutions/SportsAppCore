@@ -2,22 +2,22 @@ from typing import TYPE_CHECKING, Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
+    from .ReferenceValue import ReferenceValue
     from .Roster import Roster
 
 class TeamBase(SQLModel):
-    league_id: int = Field(
+    league_id: Optional[int] = Field(
         nullable=False,
         foreign_key="sports.leagues.league_id"
     )
-    team_name: str = Field(nullable=False, max_length=150)
+    team_name: Optional[str] = Field(nullable=False, max_length=150)
     short_name: Optional[str] = Field(default=None, max_length=50)
-    abbreviation: str = Field(nullable=False, max_length=10)
+    abbreviation: Optional[str] = Field(nullable=False, max_length=10)
 
-    city: Optional[str] = Field(default=None, max_length=100)
-    state_province: Optional[str] = Field(default=None, max_length=100)
-    country: Optional[str] = Field(default=None, max_length=100)
-
-    venue_name: Optional[str] = Field(default=None, max_length=200)
+    city_id: Optional[int] = Field(default=None,nullable=False, foreign_key="sports.reference_values.reference_value_id")
+    state_province_id: Optional[int] = Field(default=None,nullable=False, foreign_key="sports.reference_values.reference_value_id")
+    country_id: Optional[int] = Field(default=None,nullable=False, foreign_key="sports.reference_values.reference_value_id")
+    venue_id: Optional[int] = Field(default=None,nullable=False, foreign_key="sports.reference_values.reference_value_id")
 
     primary_color: Optional[str] = Field(default=None, max_length=7)
     secondary_color: Optional[str] = Field(default=None, max_length=7)
@@ -37,36 +37,38 @@ class Team(TeamBase, table=True):
 
     # -- Relationships --
     rosters: Optional[List["Roster"]] = Relationship(back_populates="team") # Back reference to Roster
+    
+    city: Optional["ReferenceValue"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Team.city_id]"}
+    )
+    state_province: Optional["ReferenceValue"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Team.state_province_id]"}
+    )
+    country: Optional["ReferenceValue"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Team.country_id]"}
+    )
+    venue: Optional["ReferenceValue"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Team.venue_id]"}
+    )
 
 class TeamCreate(TeamBase):
-    pass
-
+    # ensure fields are populated
+    team_name: str
+    abbreviation: str
 
 class TeamRead(TeamBase):
     team_id: int
 
-    rosters: Optional[List["Roster"]] = None  # Include roster details in read model
+    # rosters: Optional[List["Roster"]] = None  # Include roster details in read model
 
+    city: Optional["ReferenceValue"] = None
+    state_province: Optional["ReferenceValue"] = None
+    country: Optional["ReferenceValue"] = None
+    venue: Optional["ReferenceValue"] = None
 
-class TeamUpdate(SQLModel):
-    league_id: Optional[int] = None
-    team_name: Optional[str] = None
-    short_name: Optional[str] = None
-    abbreviation: Optional[str] = None
-
-    city: Optional[str] = None
-    state_province: Optional[str] = None
-    country: Optional[str] = None
-
-    venue_name: Optional[str] = None
-
-    primary_color: Optional[str] = None
-    secondary_color: Optional[str] = None
-
-    logo_url: Optional[str] = None
-    founded_year: Optional[int] = None
-
-    is_active: Optional[bool] = None
+class TeamUpdate(TeamBase):
+    pass
 
 from .Roster import Roster
+from .ReferenceValue import ReferenceValue
 Team.model_rebuild()

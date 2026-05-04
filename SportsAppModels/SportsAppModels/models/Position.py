@@ -5,12 +5,13 @@ if TYPE_CHECKING:
     from .RosterPosition import RosterPosition
 
 class PositionBase(SQLModel):
-    sport_id: int = Field(
+    sport_id: Optional[int] = Field(
+        default=None,
         nullable=False,
         foreign_key="sports.sports.sport_id"
     )
-    position_name: str = Field(nullable=False, max_length=100)
-    position_abbreviation: str = Field(nullable=False, max_length=10)
+    position_name: Optional[str] = Field(default=None,nullable=False, max_length=100)
+    position_abbreviation: Optional[str] = Field(default=None,nullable=False, max_length=10)
     description: Optional[str] = None
 
 
@@ -25,8 +26,8 @@ class Position(PositionBase, table=True):
     roster_positions: Optional[list["RosterPosition"]] = Relationship(back_populates="position")  # Back reference to RosterPosition
 
 class PositionCreate(PositionBase):
-    pass
-
+    position_name: str
+    position_abbreviation: str    
 
 class PositionRead(PositionBase):
     position_id: int

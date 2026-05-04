@@ -11,7 +11,7 @@ class ReferenceValueRepository(BaseRepository[
     ReferenceValueCreate,
     ReferenceValueUpdate
 ]):
-    default_relationships = ["reference_category","sports"]  # Automatically load related categories
+    default_relationships = ["reference_category"]  # Automatically load related categories
 
     def __init__(self):
         super().__init__(ReferenceValue)

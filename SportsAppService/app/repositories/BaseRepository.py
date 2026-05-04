@@ -17,9 +17,10 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    async def get_all(self, session: AsyncSession) -> List[ModelType]:
+    async def get_all(self, session: AsyncSession, **kwargs) -> List[ModelType]:
         statement = select(self.model)
 
+        # Add relationships, if required
         if self.default_relationships:
             for rel in self.default_relationships:
                 # If it's already a class attribute (e.g., Sport.sport_category), use it
@@ -29,9 +30,40 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 # Ensure we are passing the attribute directly to selectinload
                 statement = statement.options(selectinload(prop))
 
-        result = await session.exec(statement)
+        # Handle Dynamic Filtering
+        for key, value in kwargs.items():
+            if value is not None and hasattr(self.model, key):
+                attr = getattr(self.model, key)
+        
+                # Ensure the attribute has a 'type' (Standard Column)
+                # Some attributes are relationships or properties and won't have a .type
+                if not hasattr(attr, "type"):
+                    # If it's a relationship, we don't filter it here (or handle separately)
+                    continue
 
-        return result.all()
+                target_value = value
+                try:
+                    # Safely get the python_type
+                    python_type = getattr(attr.type, "python_type", None)
+
+                    if python_type:
+                        # Special handling for Booleans: strings like "false" are truthy in Python
+                        if python_type is bool and isinstance(value, str):
+                            target_value = value.lower() in ("true", "1", "t", "y", "yes")
+                        else:
+                            # Standard cast for int, float, etc.
+                            target_value = python_type(value)
+                            
+                except Exception:
+                    # If ANY error occurs during type inspection/casting, 
+                    # fall back to the original value rather than crashing.
+                    target_value = value
+
+                statement = statement.where(attr == target_value)           
+
+        results = await session.exec(statement)
+
+        return results.all()
 
     async def get_by_id(
         self,
