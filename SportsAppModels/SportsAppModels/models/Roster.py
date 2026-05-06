@@ -46,7 +46,7 @@ class RosterRead(RosterBase):
 
     athlete: Optional["Athlete"] = None  # Include athlete details in read model
     team: Optional["Team"] = None  # Include team details in read model
-    # roster_positions: Optional[List["RosterPosition"]] = None  # Include roster position details in read model
+    roster_positions: Optional[List["RosterPosition"]] = None  # Include roster position details in read model
 
 class RosterUpdate(SQLModel):
     athlete_id: Optional[int] = None

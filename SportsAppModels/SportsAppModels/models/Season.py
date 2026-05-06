@@ -1,19 +1,20 @@
 from datetime import date
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import TYPE_CHECKING, Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 
+if TYPE_CHECKING:
+    from .League import League
 
 class SeasonBase(SQLModel):
-    league_id: int = Field(
+    league_id: Optional[int] = Field(
         nullable=False,
         foreign_key="sports.leagues.league_id"
     )
-    season_year: str = Field(nullable=False, max_length=20)
-
+    season_year: Optional[str] = Field(nullable=False, max_length=20)
     start_date: Optional[date] = None
     end_date: Optional[date] = None
 
-    is_active: bool = Field(default=False)
+    is_active: Optional[bool] = Field(default=False)
 
 
 class Season(SeasonBase, table=True):
@@ -23,20 +24,21 @@ class Season(SeasonBase, table=True):
     season_id: Optional[int] = Field(default=None, primary_key=True)
     # sys_period intentionally omitted (managed by PostgreSQL triggers)
 
+    # --- Relationships ---
+    league: Optional["League"] = Relationship(back_populates="seasons")
 
 class SeasonCreate(SeasonBase):
-    pass
+    league_id: str
+    season_year: str
 
 
 class SeasonRead(SeasonBase):
     season_id: int
 
+    league: Optional["League"] = None;
 
 class SeasonUpdate(SQLModel):
-    league_id: Optional[int] = None
-    season_year: Optional[str] = None
+    pass
 
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-
-    is_active: Optional[bool] = None
+from .League import League
+Season.model_rebuild()

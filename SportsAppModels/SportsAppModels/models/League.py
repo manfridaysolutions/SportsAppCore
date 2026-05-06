@@ -1,10 +1,12 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 from sqlalchemy import null
 from sqlmodel import Relationship, SQLModel, Field
 from pydantic import field_validator
 
 if TYPE_CHECKING:
     from .ReferenceValue import ReferenceValue
+    from .Team import Team
+    from .Season import Season
 
 class LeagueBase(SQLModel):
     league_name: Optional[str] = Field(default=None,nullable=False, max_length=150)
@@ -24,6 +26,9 @@ class League(LeagueBase, table=True):
 
     # --- Relationships ---
     country: Optional["ReferenceValue"] = Relationship() # Back reference to ReferenceValue for country
+
+    teams: Optional[List["Team"]] = Relationship(back_populates="league")
+    seasons: Optional[List["Season"]] = Relationship(back_populates="league")
 
 class LeagueCreate(LeagueBase):
     league_name: str  # No default = Required
@@ -56,4 +61,6 @@ class LeagueUpdate(LeagueBase):
         return v
     
 from .ReferenceValue import ReferenceValue
+from .Team import Team
+from .Season import Season
 League.model_rebuild()

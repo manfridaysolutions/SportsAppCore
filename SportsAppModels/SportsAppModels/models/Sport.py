@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from sqlmodel import Relationship, SQLModel, Field
 
 if TYPE_CHECKING:
     from .ReferenceValue import ReferenceValue
+    from .AthleteSport import AthleteSport
 
 class SportBase(SQLModel):
     sport_name: Optional[str] = Field(default=None,nullable=False, max_length=100, index=True)
@@ -21,6 +22,7 @@ class Sport(SportBase, table=True):
     
     # Keep the relationship here, not in the Base class, to avoid circular imports
     sport_category: Optional["ReferenceValue"] = Relationship() # Back reference to ReferenceValue for sport_category   
+    athlete_sports: Optional[List["AthleteSport"]] = Relationship(back_populates="sport")
 
 class SportCreate(SportBase):
     sport_name: str

@@ -1,21 +1,21 @@
-from typing import List
+from typing import List, Optional
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from SportsAppModels.models.PlayerTradeRequest import PlayerTradeRequest
-from SportsAppModels.models.PlayerUpdateRequest import PlayerUpdateRequest
-from SportsAppModels.models.PlayerCreateRequest import PlayerCreateRequest
-from SportsAppModels.models.PlayerReadResponse import PlayerReadResponse
+from SportsAppModels.models.Player import PlayerTradeRequest, PlayerUpdateRequest, PlayerCreateRequest, PlayerReadResponse
 
 from app.repositories.AthleteRepository import AthleteRepository
 from app.repositories.RosterRepository import RosterRepository
 from app.repositories.RosterPositionRepository import RosterPositionRepository
+from app.repositories.SeasonRepository import SeasonRepository
 
-class PlayerOrchestrationService:
+class PlayerService:
 
     def __init__(self):
         self.athletes = AthleteRepository()
         self.rosters = RosterRepository()
         self.roster_positions = RosterPositionRepository()
+        self.seasons = SeasonRepository()
 
     async def create_player(
         self,
@@ -47,6 +47,23 @@ class PlayerOrchestrationService:
             roster=roster,
             roster_positions=created_positions
         )
+    
+    async def get_players_by_season(
+        self,
+        session: AsyncSession,
+        season_id: int, 
+        team_id: Optional[int] = None
+    ) -> list[PlayerReadResponse]:
+        
+        season = await self.seasons.get_by_id(session, season_id);
+
+        league_id = season.league_id;
+
+        rosters = await self.rosters.get_all(session, season_id = season_id)
+
+        responses = []
+
+        return responses
     
     async def get_all_players(
         self,

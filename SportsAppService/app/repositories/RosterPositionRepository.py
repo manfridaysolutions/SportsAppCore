@@ -4,13 +4,24 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from sqlalchemy.orm import selectinload
 
+from app.repositories.BaseRepository import BaseRepository
+
+
 from SportsAppModels.models.RosterPosition import (
     RosterPosition,
     RosterPositionCreate,
     RosterPositionUpdate
 )
 
-class RosterPositionRepository :
+class RosterPositionRepository(BaseRepository[
+    RosterPosition,
+    RosterPositionCreate,
+    RosterPositionUpdate
+]):
+    default_relationships = ["roster","position"]  # Automatically load related categories
+
+    def __init__(self):
+        super().__init__(RosterPosition)
 
     async def get_positions_for_roster(
         self,

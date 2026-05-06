@@ -1,4 +1,3 @@
-from turtle import position
 from typing import TYPE_CHECKING, Optional
 from sqlmodel import Relationship, SQLModel, Field
 

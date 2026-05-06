@@ -4,6 +4,7 @@ from sqlmodel import SQLModel, Field, Relationship
 if TYPE_CHECKING:
     from .ReferenceValue import ReferenceValue
     from .Roster import Roster
+    from .League import League
 
 class TeamBase(SQLModel):
     league_id: Optional[int] = Field(
@@ -37,6 +38,8 @@ class Team(TeamBase, table=True):
 
     # -- Relationships --
     rosters: Optional[List["Roster"]] = Relationship(back_populates="team") # Back reference to Roster
+
+    league: Optional["League"] = Relationship(back_populates="teams")
     
     city: Optional["ReferenceValue"] = Relationship(
         sa_relationship_kwargs={"foreign_keys": "[Team.city_id]"}
@@ -69,6 +72,7 @@ class TeamRead(TeamBase):
 class TeamUpdate(TeamBase):
     pass
 
+from .League import League
 from .Roster import Roster
 from .ReferenceValue import ReferenceValue
 Team.model_rebuild()

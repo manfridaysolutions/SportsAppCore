@@ -8,10 +8,16 @@ from SportsAppModels.models.RosterPosition import (
     RosterPositionUpdate
 )
 
+from app.services.BaseService import BaseService
 
-class RosterPositionService:
+class RosterPositionService(BaseService[
+    RosterPosition,
+    RosterPositionCreate,
+    RosterPositionUpdate
+]):
 
     def __init__(self):
+        super().__init__(RosterPositionRepository())
         self.repo = RosterPositionRepository()
 
     async def get_positions_for_roster(

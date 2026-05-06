@@ -1,10 +1,12 @@
 from datetime import date
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from sqlmodel import Relationship, SQLModel, Field
 
 if TYPE_CHECKING:
     from .Roster import Roster
+    from .AthleteSport import AthleteSport
+    from .ReferenceValue import ReferenceValue
 
 class AthleteBase(SQLModel):
     first_name: str = Field(nullable=False, max_length=100)
@@ -12,7 +14,7 @@ class AthleteBase(SQLModel):
     display_name: str = Field(nullable=False, max_length=200)
 
     birth_date: Optional[date] = None
-    country_id: Optional[int] = None
+    country_id: Optional[int] = Field(default=None,foreign_key="sports.reference_values.reference_value_id")
 
     height_inches: Optional[int] = None
     weight_lbs: Optional[int] = None
@@ -28,8 +30,9 @@ class Athlete(AthleteBase, table=True):
     athlete_id: Optional[int] = Field(default=None, primary_key=True)
 
     # --- Relationships ---
-    rosters: Optional[list["Roster"]] = Relationship(back_populates="athlete")  # Back reference to Roster
-
+    rosters: Optional[List["Roster"]] = Relationship(back_populates="athlete")  # Back reference to Roster
+    athlete_sports: Optional[List["AthleteSport"]] = Relationship(back_populates="athlete")
+    nationality: Optional["ReferenceValue"] = Relationship()
 
 class AthleteCreate(AthleteBase):
     pass
@@ -38,7 +41,9 @@ class AthleteCreate(AthleteBase):
 class AthleteRead(AthleteBase):
     athlete_id: int
 
-    rosters: Optional[list["Roster"]] = None  # Include roster details in read model
+    rosters: Optional[List["Roster"]] = None  # Include roster details in read model
+    athlete_sports: Optional[List["AthleteSport"]] = None
+    nationality: Optional["ReferenceValue"] = None
 
 class AthleteUpdate(SQLModel):
     first_name: Optional[str] = None
@@ -55,4 +60,6 @@ class AthleteUpdate(SQLModel):
     source_reference_id: Optional[str] = None
 
 from .Roster import Roster
+from .AthleteSport import AthleteSport
+from .ReferenceValue import ReferenceValue
 Athlete.model_rebuild()

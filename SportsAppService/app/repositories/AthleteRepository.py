@@ -11,7 +11,7 @@ class AthleteRepository(BaseRepository[
     AthleteCreate, 
     AthleteUpdate
 ]):
-    default_relationships = ["rosters"]  # Automatically load related categories
+    default_relationships = ["rosters", "athlete_sports", "nationality"]  # Automatically load related categories
     
     def __init__(self):
         super().__init__(Athlete)

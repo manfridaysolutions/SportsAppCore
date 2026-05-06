@@ -61,9 +61,9 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
                 statement = statement.where(attr == target_value)           
 
-        results = await session.exec(statement)
-
-        return results.all()
+        result = await session.exec(statement)
+        
+        return result.all()
 
     async def get_by_id(
         self,

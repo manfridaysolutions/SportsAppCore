@@ -30,8 +30,9 @@ reference_category_endpoint = BaseEndpoint[
 ).router
 
 @reference_category_endpoint.get(
-        "/by-names/", 
-        response_model=List[ReferenceCategoryRead], summary="Get Reference Categories by Names")
+    "/by-names/", 
+    response_model=List[ReferenceCategoryRead], summary="Get Reference Categories by Names"
+)
 
 async def get_categories_by_names(
     # names: Optional[List[str]] = Query(None)
