@@ -9,9 +9,9 @@ if TYPE_CHECKING:
     from .ReferenceValue import ReferenceValue
 
 class AthleteBase(SQLModel):
-    first_name: str = Field(nullable=False, max_length=100)
-    last_name: str = Field(nullable=False, max_length=100)
-    display_name: str = Field(nullable=False, max_length=200)
+    first_name: Optional[str] = Field(default=None,nullable=False, max_length=100)
+    last_name: Optional[str] = Field(default=None,nullable=False, max_length=100)
+    display_name: Optional[str] = Field(default=None,nullable=False, max_length=200)
 
     birth_date: Optional[date] = None
     country_id: Optional[int] = Field(default=None,foreign_key="sports.reference_values.reference_value_id")
@@ -19,7 +19,7 @@ class AthleteBase(SQLModel):
     height_inches: Optional[int] = None
     weight_lbs: Optional[int] = None
 
-    is_active: bool = Field(default=True)
+    is_active: Optional[bool] = Field(default=True)
     source_reference_id: Optional[str] = Field(default=None, max_length=100)
 
 
@@ -35,8 +35,9 @@ class Athlete(AthleteBase, table=True):
     nationality: Optional["ReferenceValue"] = Relationship()
 
 class AthleteCreate(AthleteBase):
-    pass
-
+    first_name: str
+    last_name: str
+    display_name: str
 
 class AthleteRead(AthleteBase):
     athlete_id: int
@@ -45,19 +46,8 @@ class AthleteRead(AthleteBase):
     athlete_sports: Optional[List["AthleteSport"]] = None
     nationality: Optional["ReferenceValue"] = None
 
-class AthleteUpdate(SQLModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    display_name: Optional[str] = None
-
-    birth_date: Optional[date] = None
-    country_id: Optional[int] = None
-
-    height_inches: Optional[int] = None
-    weight_lbs: Optional[int] = None
-
-    is_active: Optional[bool] = None
-    source_reference_id: Optional[str] = None
+class AthleteUpdate(AthleteBase):
+    athlete_sports: Optional[List["AthleteSport"]] = None
 
 from .Roster import Roster
 from .AthleteSport import AthleteSport

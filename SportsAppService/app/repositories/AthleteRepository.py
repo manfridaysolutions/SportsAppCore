@@ -6,12 +6,8 @@ from SportsAppModels.models.Athlete import (
 
 from app.repositories.BaseRepository import BaseRepository
 
-class AthleteRepository(BaseRepository[
-    Athlete,
-    AthleteCreate, 
-    AthleteUpdate
-]):
-    default_relationships = ["rosters", "athlete_sports", "nationality"]  # Automatically load related categories
-    
+class AthleteRepository(BaseRepository[Athlete, AthleteCreate, AthleteUpdate]):
+    default_relationships = ["athlete_sports", "rosters", "nationality"]
+
     def __init__(self):
         super().__init__(Athlete)

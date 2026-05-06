@@ -20,15 +20,9 @@ class AthleteSport(AthleteSportBase, table=True):
     __tablename__ = "athlete_sports"
     __table_args__ = {"schema": "sports"}
 
-    # Composite primary key
-    athlete_id: int = Field(
-        primary_key=True,
-        foreign_key="sports.athletes.athlete_id"
-    )
-    sport_id: int = Field(
-        primary_key=True,
-        foreign_key="sports.sports.sport_id"
-    )
+    athlete_sport_id: Optional[int] = Field(default=None, primary_key=True)
+    athlete_id: int = Field(foreign_key="sports.athletes.athlete_id")
+    sport_id: int = Field(foreign_key="sports.sports.sport_id")
     # sys_period intentionally omitted (managed by PostgreSQL triggers)
 
     # --- Relationships ---
@@ -36,7 +30,7 @@ class AthleteSport(AthleteSportBase, table=True):
     sport: Optional[List["Sport"]] = Relationship(back_populates="athlete_sports")
 
 class AthleteSportCreate(AthleteSportBase):
-    pass
+    athlete_sport_id: int
 
 
 class AthleteSportRead(AthleteSportBase):
