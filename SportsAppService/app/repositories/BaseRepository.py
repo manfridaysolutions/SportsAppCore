@@ -57,76 +57,83 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await session.exec(stmt)
         return result.one_or_none()
 
-    async def create(self, session: AsyncSession, obj_in: CreateSchemaType) -> ModelType:
-        obj = self.model.model_validate(obj_in)
-        session.add(obj)
-        await session.commit()
-
+    async def _sync_relationships(self, session: AsyncSession, db_obj: ModelType, rel_data: dict):
+        """
+        Generic helper to sync list-based relationships (IDs to link objects).
+        """
         mapper = inspect(self.model)
-        pk_name = mapper.primary_key[0].name
-        return await self.get_by_id(session, getattr(obj, pk_name))
+        relationships = mapper.relationships
 
-    async def update(
-        self,
-        session: AsyncSession,
-        db_obj: ModelType,
-        obj_in: UpdateSchemaType
-    ) -> ModelType:
+        for field, incoming_ids in rel_data.items():
+            rel_mapper = relationships[field]
+            rel_model = rel_mapper.mapper.class_
+            
+            parent_pk_name = mapper.primary_key[0].name
+            parent_id = getattr(db_obj, parent_pk_name)
+            
+            # Find the target ID key (e.g., 'sport_id')
+            target_pk_name = [
+                c.name for c in rel_mapper.mapper.primary_key 
+                if c.name != parent_pk_name
+            ][0]
+
+            # Current state in DB
+            current_rels = getattr(db_obj, field)
+            current_lookup = {getattr(r, target_pk_name): r for r in current_rels}
+            target_ids = set(incoming_ids)
+
+            # 1. DELETE: Remove existing links not in the new set
+            for rid, rel_obj in list(current_lookup.items()):
+                if rid not in target_ids:
+                    current_rels.remove(rel_obj)
+                    await session.delete(rel_obj)
+
+            # 2. INSERT: Add new links (skip if already exists)
+            for rid in target_ids:
+                if rid not in current_lookup:
+                    # Parent ID may be None during initial create, SQLModel handles linking on add
+                    params = {target_pk_name: rid}
+                    if parent_id: 
+                        params[parent_pk_name] = parent_id
+                    
+                    new_rel = rel_model(**params)
+                    current_rels.append(new_rel)
+
+    async def create(self, session: AsyncSession, obj_in: CreateSchemaType) -> ModelType:
+        obj_data = obj_in.model_dump()
+        mapper = inspect(self.model)
+        
+        # Separate relationships from standard data
+        rel_data = {k: v for k, v in obj_data.items() if isinstance(v, list) and k in mapper.relationships}
+        standard_data = {k: v for k, v in obj_data.items() if k not in rel_data}
+
+        db_obj = self.model(**standard_data)
+        session.add(db_obj)
+        
+        # Sync relationships (SQLModel handles the session linking)
+        await self._sync_relationships(session, db_obj, rel_data)
+        
+        await session.commit()
+        return await self.get_by_id(session, getattr(db_obj, mapper.primary_key[0].name))
+
+    async def update(self, session: AsyncSession, db_obj: ModelType, obj_in: UpdateSchemaType) -> ModelType:
         obj_data = obj_in.model_dump(exclude_unset=True)
         mapper = inspect(self.model)
-        relationships = mapper.relationships.keys()
+        
+        # Separate data
+        rel_data = {k: v for k, v in obj_data.items() if isinstance(v, list) and k in mapper.relationships}
+        
+        # Update standard fields
+        for key, value in obj_data.items():
+            if key not in rel_data and hasattr(db_obj, key):
+                setattr(db_obj, key, value)
 
-        for field, value in obj_data.items():
-            if field in relationships and isinstance(value, list):
-                # --- Advanced Compare & Upsert Logic ---
-                rel_mapper = mapper.relationships[field]
-                rel_model = rel_mapper.mapper.class_
-                current_items = getattr(db_obj, field)
-                rel_pk = rel_mapper.mapper.primary_key[0].name 
-                
-                # 1. Map incoming items with IDs (Existing)
-                new_data_lookup = {
-                    item[rel_pk]: item 
-                    for item in value 
-                    if isinstance(item, dict) and item.get(rel_pk) is not None
-                }
-                
-                # 2. Identify brand new items (No Primary Key)
-                items_to_add = [
-                    item for item in value 
-                    if isinstance(item, dict) and item.get(rel_pk) is None
-                ]
-                
-                current_ids = {getattr(item, rel_pk) for item in current_items}
-                incoming_ids = set(new_data_lookup.keys())
-
-                # 3. DELETE: Items in current DB state but NOT in incoming payload
-                items_to_remove = [
-                    item for item in current_items 
-                    if getattr(item, rel_pk) not in incoming_ids
-                ]
-                for item in items_to_remove:
-                    current_items.remove(item)
-                    await session.delete(item)
-
-                # 4. INSERT: Add the new items identified in Step 2
-                for item_data in items_to_add:
-                    new_rel_obj = rel_model.model_validate(item_data)
-                    current_items.append(new_rel_obj)
-                
-                # 5. UPDATE: (Optional) Handle updates to existing relationship metadata here
-                # Existing items in 'incoming_ids' are already in 'current_items',
-                # so they remain untouched, satisfying your "no churn" requirement.
-
-            else:
-                # Standard Column Update
-                setattr(db_obj, field, value)
+        # Sync relationships
+        await self._sync_relationships(session, db_obj, rel_data)
 
         session.add(db_obj)
         await session.commit()
-        
-        pk_name = mapper.primary_key[0].name
-        return await self.get_by_id(session, getattr(db_obj, pk_name))
+        return await self.get_by_id(session, getattr(db_obj, mapper.primary_key[0].name))
 
     async def delete(self, session: AsyncSession, id: int) -> bool:
         obj = await self.get_by_id(session, id)

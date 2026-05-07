@@ -37,7 +37,10 @@ class Team(TeamBase, table=True):
     # sys_period intentionally omitted (managed by PostgreSQL triggers)
 
     # -- Relationships --
-    rosters: Optional[List["Roster"]] = Relationship(back_populates="team") # Back reference to Roster
+    rosters: Optional[List["Roster"]] = Relationship(
+        back_populates="team",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
     league: Optional["League"] = Relationship(back_populates="teams")
     

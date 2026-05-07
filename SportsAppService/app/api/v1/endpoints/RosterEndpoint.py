@@ -1,8 +1,8 @@
 from SportsAppModels.models.Roster import (
     Roster,
     RosterCreate,
-    RosterUpdate,
-    RosterRead
+    RosterRead,
+    RosterUpdate
 )
 
 from app.services.RosterService import RosterService
@@ -13,8 +13,8 @@ roster_service = RosterService()
 roster_endpoint = BaseEndpoint[
     Roster,
     RosterCreate,
+    RosterRead,
     RosterUpdate,
-    RosterRead
 ](
     service=roster_service,
     model_create=RosterCreate,

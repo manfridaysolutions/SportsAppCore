@@ -23,7 +23,10 @@ class Position(PositionBase, table=True):
     # sys_period intentionally omitted (managed by PostgreSQL triggers)
 
     # --- Relationships ---
-    roster_positions: Optional[list["RosterPosition"]] = Relationship(back_populates="position")  # Back reference to RosterPosition
+    roster_positions: Optional[list["RosterPosition"]] = Relationship(
+        back_populates="position",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 class PositionCreate(PositionBase):
     position_name: str

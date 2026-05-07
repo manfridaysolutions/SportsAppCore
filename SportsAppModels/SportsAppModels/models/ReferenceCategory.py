@@ -22,7 +22,10 @@ class ReferenceCategory(ReferenceCategoryBase, table=True):
     )
 
     # --- Relationships ---
-    reference_values: List["ReferenceValue"] = Relationship(back_populates="reference_category")
+    reference_values: List["ReferenceValue"] = Relationship(
+        back_populates="reference_category",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 class ReferenceCategoryCreate(ReferenceCategoryBase):
     name: str

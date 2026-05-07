@@ -22,7 +22,10 @@ class Sport(SportBase, table=True):
     
     # Keep the relationship here, not in the Base class, to avoid circular imports
     sport_category: Optional["ReferenceValue"] = Relationship() # Back reference to ReferenceValue for sport_category   
-    athlete_sports: Optional[List["AthleteSport"]] = Relationship(back_populates="sport")
+    athlete_sports: Optional[List["AthleteSport"]] = Relationship(
+        back_populates="sport",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 class SportCreate(SportBase):
     sport_name: str

@@ -7,21 +7,21 @@ if TYPE_CHECKING:
     from .RosterPosition import RosterPosition
 
 class RosterBase(SQLModel):
-    athlete_id: int = Field(
+    athlete_id: Optional[int] = Field(
         nullable=False,
         foreign_key="sports.athletes.athlete_id"
     )
-    team_id: int = Field(
+    team_id: Optional[int] = Field(
         nullable=False,
         foreign_key="sports.teams.team_id"
     )
-    season_id: int = Field(
+    season_id: Optional[int] = Field(
         nullable=False,
         foreign_key="sports.seasons.season_id"
     )
 
-    is_primary_sport: bool = Field(default=True)
-    status: str = Field(default="Active", max_length=50)
+    is_primary_sport: Optional[bool] = Field(default=True)
+    status: Optional[str] = Field(default="Active", max_length=50)
     jersey_number: Optional[str] = Field(default=None, max_length=10)
 
 
@@ -35,11 +35,13 @@ class Roster(RosterBase, table=True):
     # -- Relationships --
     athlete: Optional["Athlete"] = Relationship(back_populates="rosters")
     team: Optional["Team"] = Relationship(back_populates="rosters")
-    roster_positions: Optional[List["RosterPosition"]] = Relationship(back_populates="roster")  # Back reference to RosterPosition
+    roster_positions: Optional[List["RosterPosition"]] = Relationship(
+        back_populates="roster",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 class RosterCreate(RosterBase):
-    pass
-
+    roster_positions: Optional[List[int]] = None
 
 class RosterRead(RosterBase):
     roster_id: int
@@ -52,10 +54,13 @@ class RosterUpdate(SQLModel):
     athlete_id: Optional[int] = None
     team_id: Optional[int] = None
     season_id: Optional[int] = None
-
+    
     is_primary_sport: Optional[bool] = None
     status: Optional[str] = None
     jersey_number: Optional[str] = None
+    
+    # Your flattened list of IDs
+    roster_positions: Optional[List[int]] = None
 
 from .Athlete import Athlete
 from .RosterPosition import RosterPosition

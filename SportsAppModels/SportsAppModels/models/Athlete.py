@@ -30,11 +30,18 @@ class Athlete(AthleteBase, table=True):
     athlete_id: Optional[int] = Field(default=None, primary_key=True)
 
     # --- Relationships ---
-    rosters: Optional[List["Roster"]] = Relationship(back_populates="athlete")  # Back reference to Roster
-    athlete_sports: Optional[List["AthleteSport"]] = Relationship(back_populates="athlete")
+    rosters: Optional[List["Roster"]] = Relationship(
+        back_populates="athlete",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )  # Back reference to Roster
+    athlete_sports: Optional[List["AthleteSport"]] = Relationship(
+        back_populates="athlete", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
     nationality: Optional["ReferenceValue"] = Relationship()
 
 class AthleteCreate(AthleteBase):
+    athlete_sports: Optional[List[int]] = None
     first_name: str
     last_name: str
     display_name: str
@@ -47,7 +54,7 @@ class AthleteRead(AthleteBase):
     nationality: Optional["ReferenceValue"] = None
 
 class AthleteUpdate(AthleteBase):
-    athlete_sports: Optional[List["AthleteSport"]] = None
+    athlete_sports: Optional[List[int]] = None
 
 from .Roster import Roster
 from .AthleteSport import AthleteSport

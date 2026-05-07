@@ -27,8 +27,14 @@ class League(LeagueBase, table=True):
     # --- Relationships ---
     country: Optional["ReferenceValue"] = Relationship() # Back reference to ReferenceValue for country
 
-    teams: Optional[List["Team"]] = Relationship(back_populates="league")
-    seasons: Optional[List["Season"]] = Relationship(back_populates="league")
+    teams: Optional[List["Team"]] = Relationship(
+        back_populates="league",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+    seasons: Optional[List["Season"]] = Relationship(
+        back_populates="league",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 class LeagueCreate(LeagueBase):
     league_name: str  # No default = Required
