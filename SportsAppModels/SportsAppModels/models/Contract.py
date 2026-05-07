@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .Athlete import Athlete
     from .Team import Team
     from .Season import Season
+    from .ReferenceValue import ReferenceValue
 
 class ContractBase(SQLModel):
     athlete_id: Optional[int] = Field(default=None, foreign_key="sports.athletes.athlete_id")
@@ -25,7 +26,7 @@ class ContractBase(SQLModel):
     # JSONB for the GIN index
     details: Optional[Dict[str, Any]] = Field(default_factory=dict, sa_column=Column(JSONB))
     
-    contract_type: Optional[str] = Field(default="Standard", max_length=50)
+    contract_type_id: Optional[int] = Field(default=None, foreign_key="sports.reference_values.reference_value_id")
     is_active: Optional[bool] = Field(default=True)
 
 class Contract(ContractBase, table=True):
@@ -43,6 +44,7 @@ class Contract(ContractBase, table=True):
     end_season: Optional["Season"] = Relationship(
         sa_relationship_kwargs={"foreign_keys": "[Contract.end_season_id]"}
     )
+    contract_type: Optional["ReferenceValue"] = Relationship()
 
 class ContractCreate(ContractBase):
     athlete_id: int
@@ -55,6 +57,7 @@ class ContractRead(ContractBase):
     team: Optional["Team"] = None;
     start_season: Optional["Season"] = None;
     end_season: Optional["Season"] = None;
+    contract_type: Optional["ReferenceValue"] = None;
 
 class ContractUpdate(SQLModel):
     pass
@@ -62,4 +65,5 @@ class ContractUpdate(SQLModel):
 from .Athlete import Athlete
 from .Team import Team
 from .Season import Season
+from .ReferenceValue import ReferenceValue
 Contract.model_rebuild()
