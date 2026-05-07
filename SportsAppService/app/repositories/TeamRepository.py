@@ -11,7 +11,7 @@ class TeamRepository(BaseRepository[
     TeamCreate, 
     TeamUpdate
 ]):
-    default_relationships = ["rosters", "city", "state_province", "country", "venue"]  # Automatically load related categories
+    default_relationships = ["rosters", "city", "state_province", "country", "venue", "contracts"]  # Automatically load related categories
     
     def __init__(self):
         super().__init__(Team)

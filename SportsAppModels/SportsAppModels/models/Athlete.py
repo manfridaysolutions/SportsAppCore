@@ -6,6 +6,7 @@ from sqlmodel import Relationship, SQLModel, Field
 if TYPE_CHECKING:
     from .Roster import Roster
     from .AthleteSport import AthleteSport
+    from .Contract import Contract
     from .ReferenceValue import ReferenceValue
 
 class AthleteBase(SQLModel):
@@ -39,6 +40,10 @@ class Athlete(AthleteBase, table=True):
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
     nationality: Optional["ReferenceValue"] = Relationship()
+    contracts: Optional[List["Contract"]] = Relationship(
+        back_populates="athlete",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 class AthleteCreate(AthleteBase):
     athlete_sports: Optional[List[int]] = None
@@ -58,5 +63,6 @@ class AthleteUpdate(AthleteBase):
 
 from .Roster import Roster
 from .AthleteSport import AthleteSport
+from .Contract import Contract
 from .ReferenceValue import ReferenceValue
 Athlete.model_rebuild()

@@ -7,7 +7,7 @@ from SportsAppModels.models.Athlete import (
 from app.repositories.BaseRepository import BaseRepository
 
 class AthleteRepository(BaseRepository[Athlete, AthleteCreate, AthleteUpdate]):
-    default_relationships = ["athlete_sports", "rosters", "nationality"]
+    default_relationships = ["athlete_sports", "rosters", "nationality", "contracts"]
 
     def __init__(self):
         super().__init__(Athlete)

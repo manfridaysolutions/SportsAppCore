@@ -2,9 +2,10 @@ from typing import TYPE_CHECKING, Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
-    from .ReferenceValue import ReferenceValue
-    from .Roster import Roster
     from .League import League
+    from .Roster import Roster
+    from .ReferenceValue import ReferenceValue
+    from .Contract import Contract
 
 class TeamBase(SQLModel):
     league_id: Optional[int] = Field(
@@ -57,6 +58,11 @@ class Team(TeamBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "[Team.venue_id]"}
     )
 
+    contracts: Optional[List["Contract"]] = Relationship(
+        back_populates="team",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+
 class TeamCreate(TeamBase):
     # ensure fields are populated
     team_name: str
@@ -78,4 +84,6 @@ class TeamUpdate(TeamBase):
 from .League import League
 from .Roster import Roster
 from .ReferenceValue import ReferenceValue
+from .Contract import Contract
+
 Team.model_rebuild()

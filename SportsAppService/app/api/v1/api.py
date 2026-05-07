@@ -11,6 +11,7 @@ from app.api.v1.endpoints.StatDefinitionEndpoint import statDefinition_endpoint
 from app.api.v1.endpoints.SeasonEndpoint import season_endpoint
 from app.api.v1.endpoints.RosterEndpoint import roster_endpoint
 from app.api.v1.endpoints.RosterPositionEndpoint import roster_position_endpoint
+from app.api.v1.endpoints.ContractEndpoint import contract_endpoint
 
 api_router = APIRouter()
 
@@ -26,3 +27,4 @@ api_router.include_router(statDefinition_endpoint)
 api_router.include_router(season_endpoint)
 api_router.include_router(roster_endpoint)
 api_router.include_router(roster_position_endpoint)
+api_router.include_router(contract_endpoint)
