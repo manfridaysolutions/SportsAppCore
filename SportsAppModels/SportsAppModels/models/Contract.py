@@ -59,7 +59,7 @@ class ContractRead(ContractBase):
     end_season: Optional["Season"] = None;
     contract_type: Optional["ReferenceValue"] = None;
 
-class ContractUpdate(SQLModel):
+class ContractUpdate(ContractBase):
     pass
 
 from .Athlete import Athlete
