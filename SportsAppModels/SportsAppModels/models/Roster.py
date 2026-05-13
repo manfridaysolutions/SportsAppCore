@@ -41,7 +41,7 @@ class Roster(RosterBase, table=True):
     )
 
 class RosterCreate(RosterBase):
-    roster_positions: Optional[List[int]] = None
+    pass
 
 class RosterRead(RosterBase):
     roster_id: int
@@ -50,18 +50,9 @@ class RosterRead(RosterBase):
     team: Optional["Team"] = None  # Include team details in read model
     roster_positions: Optional[List["RosterPosition"]] = None  # Include roster position details in read model
 
-class RosterUpdate(SQLModel):
-    athlete_id: Optional[int] = None
-    team_id: Optional[int] = None
-    season_id: Optional[int] = None
-    
-    is_primary_sport: Optional[bool] = None
-    status: Optional[str] = None
-    jersey_number: Optional[str] = None
-    
-    # Your flattened list of IDs
-    roster_positions: Optional[List[int]] = None
-
+class RosterUpdate(RosterBase):
+    pass
+ 
 from .Athlete import Athlete
 from .RosterPosition import RosterPosition
 from .Team import Team

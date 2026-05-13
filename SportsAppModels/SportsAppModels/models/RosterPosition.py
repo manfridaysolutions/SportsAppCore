@@ -7,10 +7,12 @@ if TYPE_CHECKING:
 
 class RosterPositionBase(SQLModel):
     roster_id: Optional[int] = Field(
+        default=None,
         nullable=False,
         foreign_key="sports.rosters.roster_id"
     )
     position_id: Optional[int] = Field(
+        default=None,
         nullable=False,
         foreign_key="sports.positions.position_id"
     )
@@ -25,22 +27,15 @@ class RosterPosition(RosterPositionBase, table=True):
 
     roster_position_id: Optional[int] = Field(default=None, primary_key=True)
 
-    roster_id: int = Field(foreign_key="sports.rosters.roster_id")
-    position_id: int = Field(foreign_key="sports.positions.position_id")
-    # sys_period intentionally omitted (managed by PostgreSQL triggers)
-
     # --- Relationships ---
     position: Optional["Position"] = Relationship(back_populates="roster_positions")
     roster: Optional["Roster"] = Relationship(back_populates="roster_positions")
 
 class RosterPositionCreate(RosterPositionBase):
     roster_positions: Optional[List[int]] = None
-    roster_id: int
-    position_id: int
 
 class RosterPositionRead(RosterPositionBase):
-    roster_id: int
-    position_id: int
+    roster_position_id: int
 
     position: Optional["Position"] = None  # Include position details in read model
     # roster: Optional["Roster"] = None  # Include roster details in read model
