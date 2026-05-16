@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 
@@ -15,9 +15,12 @@ class Settings(BaseSettings):
     app_name: str = "SportsAppService"
     log_level: str = "info"
 
-    class Config:
-        env_file = ".env"          # auto-load in VS Code
-        env_file_encoding = "utf-8"
+# Use ONLY this block for V2 configuration:
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"  # <-- This fixes the 'workspacefolder' crash!
+    )
 
 
 settings = Settings()

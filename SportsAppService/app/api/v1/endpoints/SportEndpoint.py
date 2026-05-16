@@ -1,6 +1,3 @@
-from pyexpat import model
-from turtle import mode
-
 from SportsAppModels.models.Sport import (
     Sport,
     SportCreate,
