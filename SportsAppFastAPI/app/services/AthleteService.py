@@ -17,9 +17,11 @@ from SportsAppModels.models.Season import ( Season )
 
 class AthleteService(BaseService[Athlete, AthleteCreate, AthleteUpdate]):
     def __init__(self):
+        
         super().__init__(AthleteRepository())
 
     async def get_by_sport(self, session: AsyncSession, sport_id: int) -> List[Athlete]:
+        
         if not sport_id:
             return []
         

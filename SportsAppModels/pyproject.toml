@@ -1,0 +1,14 @@
+[project]
+name = "SportsAppModels"
+version = "0.1.0"
+description = "Shared Pydantic/SQLModel models for SportsApp microservices"
+requires-python = ">=3.10"
+
+dependencies = [
+    "pydantic>=2.6",
+    "sqlmodel>=0.0.16"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,2 @@
+pydantic>=2.6
+sqlmodel>=0.0.16

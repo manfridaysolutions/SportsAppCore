@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: SportsAppModels
+Version: 0.1.0
+Summary: Shared Pydantic/SQLModel models for SportsApp microservices
+Requires-Python: >=3.10
+Requires-Dist: pydantic>=2.6
+Requires-Dist: sqlmodel>=0.0.16
