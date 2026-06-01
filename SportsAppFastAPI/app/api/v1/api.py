@@ -6,6 +6,7 @@ from app.api.v1.endpoints.AthleteEndpoint import athlete_endpoint
 from app.api.v1.endpoints.LeagueEndpoint import league_endpoint
 from app.api.v1.endpoints.PlayerEndpoint import player_endpoint
 from app.api.v1.endpoints.TeamEndpoint import team_endpoint
+from app.api.v1.endpoints.TeamSynchEndpoint import team_synch_endpoint
 from app.api.v1.endpoints.PositionEndpoint import position_endpoint
 from app.api.v1.endpoints.StatDefinitionEndpoint import statDefinition_endpoint
 from app.api.v1.endpoints.SeasonEndpoint import season_endpoint
@@ -22,6 +23,7 @@ api_router.include_router(athlete_endpoint)
 api_router.include_router(league_endpoint)
 api_router.include_router(player_endpoint)
 api_router.include_router(team_endpoint)
+api_router.include_router(team_synch_endpoint)
 api_router.include_router(position_endpoint)
 api_router.include_router(statDefinition_endpoint)
 api_router.include_router(season_endpoint)

@@ -12,3 +12,10 @@ dependencies = [
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+# Tells python that "SportsAppModels.models" maps directly to your local "models" directory
+[tool.setuptools]
+packages = ["SportsAppModels.models"]
+
+[tool.setuptools.package-dir]
+"SportsAppModels.models" = "models"
