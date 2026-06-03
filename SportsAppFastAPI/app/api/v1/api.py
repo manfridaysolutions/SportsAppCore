@@ -3,6 +3,7 @@ from app.api.v1.endpoints.SportEndpoint import sport_endpoint
 from app.api.v1.endpoints.ReferenceValueEndpoint import reference_value_endpoint
 from app.api.v1.endpoints.ReferenceCategoryEndpoint import reference_category_endpoint
 from app.api.v1.endpoints.AthleteEndpoint import athlete_endpoint
+from app.api.v1.endpoints.AthleteSynchEndpoint import athlete_synch_endpoint
 from app.api.v1.endpoints.LeagueEndpoint import league_endpoint
 from app.api.v1.endpoints.PlayerEndpoint import player_endpoint
 from app.api.v1.endpoints.TeamEndpoint import team_endpoint
@@ -11,8 +12,10 @@ from app.api.v1.endpoints.PositionEndpoint import position_endpoint
 from app.api.v1.endpoints.StatDefinitionEndpoint import statDefinition_endpoint
 from app.api.v1.endpoints.SeasonEndpoint import season_endpoint
 from app.api.v1.endpoints.RosterEndpoint import roster_endpoint
+from app.api.v1.endpoints.RosterSynchEndpoint import roster_synch_endpoint
 from app.api.v1.endpoints.RosterPositionEndpoint import roster_position_endpoint
 from app.api.v1.endpoints.ContractEndpoint import contract_endpoint
+from app.api.v1.endpoints.SourceDataMappingEndpoint import mapping_endpoint
 
 api_router = APIRouter()
 
@@ -20,6 +23,7 @@ api_router.include_router(sport_endpoint)
 api_router.include_router(reference_value_endpoint)
 api_router.include_router(reference_category_endpoint)
 api_router.include_router(athlete_endpoint)
+api_router.include_router(athlete_synch_endpoint)
 api_router.include_router(league_endpoint)
 api_router.include_router(player_endpoint)
 api_router.include_router(team_endpoint)
@@ -29,4 +33,6 @@ api_router.include_router(statDefinition_endpoint)
 api_router.include_router(season_endpoint)
 api_router.include_router(roster_endpoint)
 api_router.include_router(roster_position_endpoint)
+api_router.include_router(roster_synch_endpoint)
 api_router.include_router(contract_endpoint)
+api_router.include_router(mapping_endpoint)
