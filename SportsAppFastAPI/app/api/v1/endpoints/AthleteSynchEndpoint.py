@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.db.session import get_session
 from app.services.AthleteSynchService import AthleteSynchService
-from SportsAppModels.models.Athlete import AthleteRead, AthleteSynch
+from SportsAppModels.models.Athlete import AthleteRead
+from SportsAppModels.models.AthleteSynch import AthleteSynch
 
 athlete_synch_service = AthleteSynchService()
 athlete_synch_endpoint = APIRouter(prefix="/synch/athletes", tags=["Athlete Synchronization"])
